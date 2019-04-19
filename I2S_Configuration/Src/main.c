@@ -44,6 +44,7 @@
 #include "dma.h"
 #include "i2s.h"
 #include "gpio.h"
+#include "pdm2pcm_glo.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
