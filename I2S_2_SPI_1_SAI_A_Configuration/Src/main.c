@@ -40,11 +40,13 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "crc.h"
 #include "dma.h"
 #include "i2s.h"
 #include "sai.h"
 #include "spi.h"
 #include "gpio.h"
+#include "pdm2pcm_glo.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -115,6 +117,7 @@ int main(void)
   MX_I2S2_Init();
   MX_SPI1_Init();
   MX_SAI1_Init();
+  MX_CRC_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */

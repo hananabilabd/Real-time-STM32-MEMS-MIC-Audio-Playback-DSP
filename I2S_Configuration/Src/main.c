@@ -40,9 +40,11 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "crc.h"
 #include "dma.h"
 #include "i2s.h"
 #include "gpio.h"
+#include "pdm2pcm_glo.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -111,8 +113,29 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_I2S2_Init();
+  MX_CRC_Init();
   /* USER CODE BEGIN 2 */
 
+  /*Enables and resets CRC-32 from STM32 HW */
+  __HAL_RCC_CRC_CLK_ENABLE();
+  CRC->CR = CRC_CR_RESET;
+  
+  PDM_Filter_Handler_t PDM1_filter_handler;
+  PDM_Filter_Config_t PDM1_filter_config;
+  
+  /* Initialize PDM Filter structure */
+  PDM1_filter_handler.bit_order = PDM_FILTER_BIT_ORDER_LSB;
+  PDM1_filter_handler.endianness = PDM_FILTER_ENDIANNESS_BE;
+  PDM1_filter_handler.high_pass_tap = 2122358088;
+  PDM1_filter_handler.out_ptr_channels = 1;
+  PDM1_filter_handler.in_ptr_channels = 1;
+  PDM_Filter_Init((PDM_Filter_Handler_t *)(&PDM1_filter_handler));
+  
+  PDM1_filter_config.output_samples_number = 16;
+  PDM1_filter_config.mic_gain = 24;
+  PDM1_filter_config.decimation_factor = PDM_FILTER_DEC_FACTOR_64;
+  PDM_Filter_setConfig((PDM_Filter_Handler_t *)&PDM1_filter_handler,&PDM1_filter_config);
+  
   /* USER CODE END 2 */
 
   /* Infinite loop */
