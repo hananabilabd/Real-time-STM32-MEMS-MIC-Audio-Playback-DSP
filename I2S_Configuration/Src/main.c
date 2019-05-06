@@ -41,6 +41,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "crc.h"
+#include "dac.h"
 #include "dma.h"
 #include "i2s.h"
 #include "pdm2pcm.h"
@@ -116,6 +117,7 @@ int main(void)
   MX_I2S2_Init();
   MX_CRC_Init();
   MX_PDM2PCM_Init();
+  MX_DAC_Init();
   /* USER CODE BEGIN 2 */
 
   /*Enables and resets CRC-32 from STM32 HW */
@@ -200,7 +202,7 @@ void SystemClock_Config(void)
   PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_I2S_APB1;
   PeriphClkInitStruct.PLLI2S.PLLI2SN = 192;
   PeriphClkInitStruct.PLLI2S.PLLI2SP = RCC_PLLI2SP_DIV2;
-  PeriphClkInitStruct.PLLI2S.PLLI2SM = 5;
+  PeriphClkInitStruct.PLLI2S.PLLI2SM = 10;
   PeriphClkInitStruct.PLLI2S.PLLI2SR = 5;
   PeriphClkInitStruct.PLLI2S.PLLI2SQ = 2;
   PeriphClkInitStruct.PLLI2SDivQ = 1;
