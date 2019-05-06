@@ -153,6 +153,7 @@ int main(void)
   	uint16_t pcm_buffer[size_pcm_buffer];
 
   	uint8_t i;
+  	HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -168,6 +169,12 @@ int main(void)
 	  }
 
 	  PDM_Filter(&pdm_buffer[0], &pcm_buffer[0], (PDM_Filter_Handler_t *)&PDM1_filter_handler);
+	  for(i=0; i<size_pcm_buffer; i++)
+	  	  {
+		  HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,pcm_buffer[i]/30);
+	  	  }
+
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
