@@ -43,8 +43,8 @@
 #include "crc.h"
 #include "dma.h"
 #include "i2s.h"
+#include "pdm2pcm.h"
 #include "gpio.h"
-#include "pdm2pcm_glo.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -90,7 +90,8 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+	uint16_t pdm_buffer[16];
+	uint16_t pcm_buffer[16];
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -114,6 +115,7 @@ int main(void)
   MX_DMA_Init();
   MX_I2S2_Init();
   MX_CRC_Init();
+  MX_PDM2PCM_Init();
   /* USER CODE BEGIN 2 */
 
   /*Enables and resets CRC-32 from STM32 HW */
@@ -143,7 +145,8 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+	  HAL_I2S_Receive((I2S_HandleTypeDef *)&hi2s2, &pdm_buffer[0], 16, 10000);
+	  PDM_Filter(&pdm_buffer[0], &pcm_buffer[0], (PDM_Filter_Handler_t *)&PDM1_filter_handler);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

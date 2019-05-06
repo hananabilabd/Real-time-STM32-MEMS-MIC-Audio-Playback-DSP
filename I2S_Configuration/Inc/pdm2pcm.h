@@ -1,8 +1,9 @@
+/* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * File Name          : dma.h
-  * Description        : This file contains all the function prototypes for
-  *                      the dma.c file
+  * File Name          : pdm2pcm.h
+  * Description        : This file provides code for the configuration
+  *                      of the pdm2pcm instances.
   ******************************************************************************
   * This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
@@ -46,38 +47,46 @@
   *
   ******************************************************************************
   */
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __dma_H
-#define __dma_H
+/* USER CODE END Header */
 
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __pdm2pcm_H
+#define __pdm2pcm_H
 #ifdef __cplusplus
- extern "C" {
+  extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "pdm2pcm_glo.h"
 
-/* DMA memory to memory transfer handles -------------------------------------*/
+/* USER CODE BEGIN 0 */
+/* USER CODE END 0 */
 
-/* USER CODE BEGIN Includes */
+/* Global variables ---------------------------------------------------------*/
+extern PDM_Filter_Handler_t PDM1_filter_handler;
+extern PDM_Filter_Config_t PDM1_filter_config;
 
-/* USER CODE END Includes */
+/* USER CODE BEGIN 1 */
+/* USER CODE END 1 */
 
-/* USER CODE BEGIN Private defines */
+/* PDM2PCM init function */
+void MX_PDM2PCM_Init(void);
 
-/* USER CODE END Private defines */
+/* USER CODE BEGIN 2 */
 
-void MX_DMA_Init(void);
+/* PDM2PCM process function */
+uint8_t MX_PDM2PCM_Process(uint16_t *PDMBuf, uint16_t *PCMBuf);
 
-/* USER CODE BEGIN Prototypes */
+/* USER CODE END 2 */
 
-/* USER CODE END Prototypes */
+/* USER CODE BEGIN 3 */
+/* USER CODE END 3 */
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* __dma_H */
+#endif /*__pdm2pcm_H */
 
 /**
   * @}
