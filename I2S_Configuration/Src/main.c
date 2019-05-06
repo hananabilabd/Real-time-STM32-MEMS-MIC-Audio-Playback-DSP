@@ -47,6 +47,8 @@
 #include "pdm2pcm.h"
 #include "gpio.h"
 
+#define get_8Bits(reg , pin)             ((reg >> pin*8) & 0xFF)
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -91,8 +93,7 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	uint16_t pdm_buffer[16];
-	uint16_t pcm_buffer[16];
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -142,12 +143,30 @@ int main(void)
   
   /* USER CODE END 2 */
 
+  	uint8_t size_pdm_buffer = 64;
+  	uint8_t size_pcm_buffer = 16;
+  	uint8_t size_i2s_buffer = size_pdm_buffer/2;
+
+  	uint16_t i2s_buffer[size_i2s_buffer];
+
+  	uint8_t pdm_buffer[size_pdm_buffer];
+  	uint16_t pcm_buffer[size_pcm_buffer];
+
+  	uint8_t i;
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
     /* USER CODE END WHILE */
-	  HAL_I2S_Receive((I2S_HandleTypeDef *)&hi2s2, &pdm_buffer[0], 16, 10000);
+	  HAL_I2S_Receive((I2S_HandleTypeDef *)&hi2s2, &i2s_buffer[0], size_i2s_buffer, 10000);
+
+	  for(i=0; i<size_i2s_buffer; i++)
+	  {
+		  pdm_buffer[i*2] = get_8Bits(i2s_buffer[i],0);
+		  pdm_buffer[(i*2)+1] = get_8Bits(i2s_buffer[i],1);
+	  }
+
 	  PDM_Filter(&pdm_buffer[0], &pcm_buffer[0], (PDM_Filter_Handler_t *)&PDM1_filter_handler);
     /* USER CODE BEGIN 3 */
   }
