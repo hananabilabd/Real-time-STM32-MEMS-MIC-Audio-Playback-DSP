@@ -34,7 +34,7 @@ all: I2S-DAC.elf
 I2S-DAC.elf: $(OBJS) $(USER_OBJS) ../STM32F446RCTx_FLASH.ld
 	@echo 'Building target: $@'
 	@echo 'Invoking: MCU GCC Linker'
-	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -L"F:\ITI\Graduation\Test_I2S_DAC\I2S-DAC\Middlewares\ST\STM32_Audio\Addons\PDM\Lib"  -specs=nosys.specs -specs=nano.specs -T"../STM32F446RCTx_FLASH.ld" -Wl,-Map=output.map -Wl,--gc-sections -o "I2S-DAC.elf" @"objects.list" $(USER_OBJS) $(LIBS) -lm
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -L"F:\ITI\Graduation\Digital-Hearing-Aid-STM32\I2S-DAC\Middlewares\ST\STM32_Audio\Addons\PDM\Lib"  -specs=nosys.specs -specs=nano.specs -T"../STM32F446RCTx_FLASH.ld" -Wl,-Map=output.map -Wl,--gc-sections -o "I2S-DAC.elf" @"objects.list" $(USER_OBJS) $(LIBS) -lm
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build

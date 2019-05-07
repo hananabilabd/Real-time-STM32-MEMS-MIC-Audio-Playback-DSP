@@ -47,79 +47,150 @@
 #include "pdm2pcm.h"
 #include "gpio.h"
 
-#define get_8Bits(reg , pin)             ((reg >> pin*8) & 0xFF)
+#define get_8Bits(reg , pin)             ((reg >> pin*8) & 0x00FF)
+#define HTONS(A)  ((((uint16_t)(A) & 0xff00) >> 8) | \
+                   (((uint16_t)(A) & 0x00ff) << 8))
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
+/*
+typedef struct{
+  uint16_t bit_order;
+  uint16_t endianness;
+  uint32_t high_pass_tap;
+  uint16_t in_ptr_channels;
+  uint16_t out_ptr_channels;
+  uint32_t pInternalMemory[PDM2PCM_INTERNAL_MEMORY_SIZE];
+}PDM_Filter_Handler_t;
+typedef struct{
+  uint16_t decimation_factor;
+  uint16_t output_samples_number;
+  int16_t  mic_gain;
+}PDM_Filter_Config_t;
+typedef struct {
+	int32_t Z;
+	int32_t oldOut;
+	int32_t oldIn;
+}HP_FilterState_TypeDef;
+typedef struct
+{
+  uint32_t                    Instance;
+  uint32_t                    Device;
+  uint32_t                    SampleRate;
+  uint32_t                    BitsPerSample;
+  uint32_t                    ChannelsNbr;
+  uint16_t                    *pBuff;
+  uint8_t                     **pMultiBuff;
+  uint32_t                    Size;
+  uint32_t                    Volume;
+  uint32_t                    State;
+  uint32_t                    IsMultiBuff;
+  uint32_t                    IsMspCallbacksValid;
+  HP_FilterState_TypeDef 	  HP_Filters[4];
+  uint32_t DecimationFactor;
+}AUDIO_IN_Ctx_t;
+typedef struct
+{
+  uint32_t                    Device;
+  uint32_t                    SampleRate;
+  uint32_t                    BitsPerSample;
+  uint32_t                    ChannelsNbr;
+  uint32_t                    Volume;
+}BSP_AUDIO_Init_t;
+static PDM_Filter_Handler_t  PDM_FilterHandler[4];
+static PDM_Filter_Config_t   PDM_FilterConfig[4];
+AUDIO_IN_Ctx_t                         AudioInCtx[3] = {0};
+static uint16_t I2S_InternalBuffer[768];
+void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
+{
+  uint32_t index = 0;
+      uint16_t * DataTempI2S = &I2S_InternalBuffer[80] ;
+      for(index = 0; index < 80; index++)
+      {
+        AudioInCtx[0].pBuff[index] = HTONS(DataTempI2S[index]);
+      }
+  //BSP_AUDIO_IN_TransferComplete_CallBack(0);
+}
+void BSP_AUDIO_IN_PDMToPCM_Init(uint32_t Instance, uint32_t AudioFreq, uint32_t ChnlNbrIn, uint32_t ChnlNbrOut)
+{
+	AudioInCtx[Instance].pBuff = (uint8_t *) pdm_buffer;
+    uint32_t index = 0;
+    for(index = 0; index < ChnlNbrIn; index++)
+    {
+      volatile uint32_t error = 0;
 
-/* USER CODE END Includes */
+      PDM_FilterHandler[index].bit_order  = PDM_FILTER_BIT_ORDER_LSB;
+      PDM_FilterHandler[index].endianness = PDM_FILTER_ENDIANNESS_LE;
+      PDM_FilterHandler[index].high_pass_tap = 2122358088;
+      PDM_FilterHandler[index].out_ptr_channels = ChnlNbrOut;
+      PDM_FilterHandler[index].in_ptr_channels  = ChnlNbrIn;
 
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
+      PDM_FilterConfig[index].output_samples_number = (AudioFreq/1000) ;
+      PDM_FilterConfig[index].mic_gain = 24;
 
-/* USER CODE END PTD */
+      switch (AudioInCtx[0].DecimationFactor)
+      {
+      case 16:
+        PDM_FilterConfig[index].decimation_factor = PDM_FILTER_DEC_FACTOR_16;
+        break;
+      case 24:
+        PDM_FilterConfig[index].decimation_factor = PDM_FILTER_DEC_FACTOR_24;
+        break;
+      case 32:
+        PDM_FilterConfig[index].decimation_factor = PDM_FILTER_DEC_FACTOR_32;
+        break;
+      case 48:
+        PDM_FilterConfig[index].decimation_factor = PDM_FILTER_DEC_FACTOR_48;
+        break;
+      case 64:
+        PDM_FilterConfig[index].decimation_factor = PDM_FILTER_DEC_FACTOR_64;
+        break;
+      case 80:
+        PDM_FilterConfig[index].decimation_factor = PDM_FILTER_DEC_FACTOR_80;
+        break;
+      case 128:
+        PDM_FilterConfig[index].decimation_factor = PDM_FILTER_DEC_FACTOR_128;
+        break;
+      case 160:
+        PDM_FilterConfig[index].decimation_factor = PDM_FILTER_DEC_FACTOR_80;
+        PDM_FilterConfig[index].output_samples_number *= 2;
+        PDM_FilterHandler[index].out_ptr_channels = 1;
+        break;
 
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
+      }
 
-/* USER CODE END PD */
+      PDM_Filter_Init((PDM_Filter_Handler_t *)(&PDM_FilterHandler[index]));
+      PDM_Filter_setConfig((PDM_Filter_Handler_t *)&PDM_FilterHandler[index], &PDM_FilterConfig[index]);
 
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
-
-/* USER CODE BEGIN PV */
-
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
+    }
+}
+void BSP_AUDIO_IN_PDMToPCM(uint32_t Instance, uint16_t *PDMBuf, uint16_t *PCMBuf)
+{
+	uint8_t index =0;
+    PDM_Filter(&((uint8_t*)(PDMBuf))[index], (uint16_t*)&(PCMBuf[index]), &PDM_FilterHandler[index]);
+}
+*/
 void SystemClock_Config(void);
-/* USER CODE BEGIN PFP */
 
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
-
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
 int main(void)
 {
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
-
-  /* MCU Configuration--------------------------------------------------------*/
-
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+	uint8_t size_pdm_buffer = 64;
+	uint8_t size_pcm_buffer = 16;
+	uint8_t size_i2s_buffer = size_pdm_buffer/2;//=32
+	uint16_t i2s_buffer[size_i2s_buffer];
+	uint8_t pdm_buffer[size_pdm_buffer];
+	uint16_t pcm_buffer[size_pcm_buffer];
   HAL_Init();
 
-  /* USER CODE BEGIN Init */
 
-  /* USER CODE END Init */
-
-  /* Configure the system clock */
   SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
 
-  /* USER CODE END SysInit */
-
-  /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_I2S2_Init();
   MX_CRC_Init();
   MX_PDM2PCM_Init();
   MX_DAC_Init();
-  /* USER CODE BEGIN 2 */
+
 
   /*Enables and resets CRC-32 from STM32 HW */
   __HAL_RCC_CRC_CLK_ENABLE();
@@ -130,68 +201,58 @@ int main(void)
   
   /* Initialize PDM Filter structure */
   PDM1_filter_handler.bit_order = PDM_FILTER_BIT_ORDER_LSB;
-  PDM1_filter_handler.endianness = PDM_FILTER_ENDIANNESS_BE;
+  PDM1_filter_handler.endianness = PDM_FILTER_ENDIANNESS_LE;
   PDM1_filter_handler.high_pass_tap = 2122358088;
   PDM1_filter_handler.out_ptr_channels = 1;
   PDM1_filter_handler.in_ptr_channels = 1;
   PDM_Filter_Init((PDM_Filter_Handler_t *)(&PDM1_filter_handler));
   
   PDM1_filter_config.output_samples_number = 16;
-  PDM1_filter_config.mic_gain = 24;
+  PDM1_filter_config.mic_gain = 1 ;
   PDM1_filter_config.decimation_factor = PDM_FILTER_DEC_FACTOR_64;
   PDM_Filter_setConfig((PDM_Filter_Handler_t *)&PDM1_filter_handler,&PDM1_filter_config);
   
-  /* USER CODE END 2 */
 
-  	uint8_t size_pdm_buffer = 64;
-  	uint8_t size_pcm_buffer = 16;
-  	uint8_t size_i2s_buffer = size_pdm_buffer/2;
 
-  	uint16_t i2s_buffer[size_i2s_buffer];
 
-  	uint8_t pdm_buffer[size_pdm_buffer];
-  	uint16_t pcm_buffer[size_pcm_buffer];
 
-  	uint8_t i;
+  	uint16_t i;
+  	uint16_t temp ;
   	HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
+
   while (1)
   {
-    /* USER CODE END WHILE */
+
 	  HAL_I2S_Receive((I2S_HandleTypeDef *)&hi2s2, &i2s_buffer[0], size_i2s_buffer, 10000);
 
 	  for(i=0; i<size_i2s_buffer; i++)
 	  {
+		  //pdm_buffer[i]=HTONS(i2s_buffer[i]);
+
 		  pdm_buffer[i*2] = get_8Bits(i2s_buffer[i],0);
 		  pdm_buffer[(i*2)+1] = get_8Bits(i2s_buffer[i],1);
 	  }
 
-	  PDM_Filter(&pdm_buffer[0], &pcm_buffer[0], (PDM_Filter_Handler_t *)&PDM1_filter_handler);
+	  PDM_Filter( &((uint8_t*)(pdm_buffer))[0], &pcm_buffer[0], (PDM_Filter_Handler_t *)&PDM1_filter_handler);
 	  for(i=0; i<size_pcm_buffer; i++)
 	  	  {
-		  HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,pcm_buffer[i]/30);
+		  HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,pcm_buffer[i]);
 	  	  }
+	  //HAL_I2S_Receive_DMA(&hAudioInI2s, I2S_InternalBuffer, 160);
 
-
-    /* USER CODE BEGIN 3 */
   }
-  /* USER CODE END 3 */
+
 }
 
-/**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 
-  /**Macro to configure the PLL multiplication factor 
-  */
+
   __HAL_RCC_PLL_PLLM_CONFIG(4);
   /**Macro to configure the PLL clock source 
   */
@@ -239,20 +300,10 @@ void SystemClock_Config(void)
   }
 }
 
-/* USER CODE BEGIN 4 */
 
-/* USER CODE END 4 */
-
-/**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
 void Error_Handler(void)
 {
-  /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
 
-  /* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef  USE_FULL_ASSERT
