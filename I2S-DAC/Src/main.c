@@ -1,148 +1,84 @@
-/* USER CODE BEGIN Header */
-/**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * This notice applies to any and all portions of this file
-  * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether 
-  * inserted by the user or by software development tools
-  * are owned by their respective copyright owners.
-  *
-  * Copyright (c) 2019 STMicroelectronics International N.V. 
-  * All rights reserved.
-  *
-  * Redistribution and use in source and binary forms, with or without 
-  * modification, are permitted, provided that the following conditions are met:
-  *
-  * 1. Redistribution of source code must retain the above copyright notice, 
-  *    this list of conditions and the following disclaimer.
-  * 2. Redistributions in binary form must reproduce the above copyright notice,
-  *    this list of conditions and the following disclaimer in the documentation
-  *    and/or other materials provided with the distribution.
-  * 3. Neither the name of STMicroelectronics nor the names of other 
-  *    contributors to this software may be used to endorse or promote products 
-  *    derived from this software without specific written permission.
-  * 4. This software, including modifications and/or derivative works of this 
-  *    software, must execute solely and exclusively on microcontroller or
-  *    microprocessor devices manufactured by or for STMicroelectronics.
-  * 5. Redistribution and use of this software other than as permitted under 
-  *    this license is void and will automatically terminate your rights under 
-  *    this license. 
-  *
-  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS" 
-  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT 
-  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
-  * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
-  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT 
-  * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
-  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
-  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
-  ******************************************************************************
-  */
-/* USER CODE END Header */
+
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "pdm2pcm.h"
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-
-/* USER CODE END Includes */
-
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
 CRC_HandleTypeDef hcrc;
 
 DAC_HandleTypeDef hdac;
 
 I2S_HandleTypeDef hi2s2;
 
-/* USER CODE BEGIN PV */
 
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DAC_Init(void);
 static void MX_CRC_Init(void);
 static void MX_I2S2_Init(void);
-/* USER CODE BEGIN PFP */
-
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
-
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
+#define get_8Bits(reg , pin)             ((reg >> pin*8) & 0x00FF)
+#define HTONS(A)  ((((uint16_t)(A) & 0xff00) >> 8) | \
+                   (((uint16_t)(A) & 0x00ff) << 8))
 int main(void)
 {
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
-
-  /* MCU Configuration--------------------------------------------------------*/
-
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+	uint8_t size_pdm_buffer = 64;
+		uint8_t size_pcm_buffer = 16;
+		uint8_t size_i2s_buffer = size_pdm_buffer/2;//=32
+		uint16_t i2s_buffer[size_i2s_buffer];
+		uint8_t pdm_buffer[size_pdm_buffer];
+		uint16_t pcm_buffer[size_pcm_buffer];
   HAL_Init();
 
-  /* USER CODE BEGIN Init */
 
-  /* USER CODE END Init */
-
-  /* Configure the system clock */
   SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
-
-  /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DAC_Init();
   MX_CRC_Init();
   MX_PDM2PCM_Init();
   MX_I2S2_Init();
-  /* USER CODE BEGIN 2 */
+  __HAL_RCC_CRC_CLK_ENABLE();
+    CRC->CR = CRC_CR_RESET;
 
-  /* USER CODE END 2 */
+    PDM_Filter_Handler_t PDM1_filter_handler;
+      PDM_Filter_Config_t PDM1_filter_config;
+      PDM1_filter_handler.bit_order = PDM_FILTER_BIT_ORDER_LSB;
+      PDM1_filter_handler.endianness = PDM_FILTER_ENDIANNESS_LE;
+      PDM1_filter_handler.high_pass_tap = 2122358088;
+      PDM1_filter_handler.out_ptr_channels = 1;
+      PDM1_filter_handler.in_ptr_channels = 1;
+      PDM_Filter_Init((PDM_Filter_Handler_t *)(&PDM1_filter_handler));
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
+      PDM1_filter_config.output_samples_number = 16;
+      PDM1_filter_config.mic_gain = 1 ;
+      PDM1_filter_config.decimation_factor = PDM_FILTER_DEC_FACTOR_64;
+      PDM_Filter_setConfig((PDM_Filter_Handler_t *)&PDM1_filter_handler,&PDM1_filter_config);
+
+
+	HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
+	uint16_t i;
+
   while (1)
   {
-    /* USER CODE END WHILE */
 
-    /* USER CODE BEGIN 3 */
+	  HAL_I2S_Receive((I2S_HandleTypeDef *)&hi2s2, &i2s_buffer[0], size_i2s_buffer, 10000);
+
+	  for(i=0; i<size_i2s_buffer; i++)
+	  {
+		  //pdm_buffer[i]=HTONS(i2s_buffer[i]);
+
+		  pdm_buffer[i*2] = get_8Bits(i2s_buffer[i],0);
+		  pdm_buffer[(i*2)+1] = get_8Bits(i2s_buffer[i],1);
+	  }
+
+	  PDM_Filter( &((uint8_t*)(pdm_buffer))[0], &pcm_buffer[0], (PDM_Filter_Handler_t *)&PDM1_filter_handler);
+	  for(i=0; i<size_pcm_buffer; i++)
+	  	  {
+		  HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,pcm_buffer[i]);
+	  	  }
+	  //HAL_I2S_Receive_DMA(&hAudioInI2s, I2S_InternalBuffer, 160);
+
   }
-  /* USER CODE END 3 */
 }
 
 /**
