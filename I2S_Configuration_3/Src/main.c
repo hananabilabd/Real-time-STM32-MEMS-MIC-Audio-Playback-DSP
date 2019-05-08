@@ -34,7 +34,7 @@ void AudioProcess(void)
 	//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_1);
 	for(i=0; i<size_pcm_buffer; i++)
 	{
-		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,pcm_buffer[i]);
+		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,pcm_buffer[i]/2);
 		//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,dac_buffer[i]);
 	}
 
@@ -86,7 +86,7 @@ int main(void)
 	PDM1_filter_handler.in_ptr_channels = 1;
 	PDM_Filter_Init((PDM_Filter_Handler_t *)(&PDM1_filter_handler));
 	PDM1_filter_config.output_samples_number = size_pcm_buffer;
-	PDM1_filter_config.mic_gain = 2 ;
+	PDM1_filter_config.mic_gain = 24 ;
 	PDM1_filter_config.decimation_factor = PDM_FILTER_DEC_FACTOR_64;
 	PDM_Filter_setConfig((PDM_Filter_Handler_t *)&PDM1_filter_handler,&PDM1_filter_config);
 	uint16_t i;
