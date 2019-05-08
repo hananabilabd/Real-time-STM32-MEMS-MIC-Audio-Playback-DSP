@@ -58,17 +58,23 @@
 #include "tim.h"
 #include "gpio.h"
 
+#define size_pdm_buffer  64
+#define size_pdm_buffer  64
+#define size_pcm_buffer  16
+#define size_i2s_buffer  192 //=32
+//uint16_t PDM_Buffer[((((AUDIO_CHANNELS * AUDIO_SAMPLING_FREQUENCY) / 1000) * MAX_DECIMATION_FACTOR) / 16)* N_MS ];
+//uint16_t PCM_Buffer[((AUDIO_CHANNELS*AUDIO_SAMPLING_FREQUENCY)/1000)  * N_MS ];
 #define get_8Bits(reg , pin)             ((reg >> pin*8) & 0x00FF)
 #define HTONS(A)  ((((uint16_t)(A) & 0xff00) >> 8) | \
                    (((uint16_t)(A) & 0x00ff) << 8))
-uint8_t size_pdm_buffer = 64;
-uint8_t size_pcm_buffer = 16;
-uint8_t size_i2s_buffer = 32;//=32
 
-uint16_t i2s_buffer[32];
-uint8_t pdm_buffer[64];
-uint16_t pcm_buffer[16];
-uint32_t dac_buffer[16];
+
+
+
+uint16_t i2s_buffer[size_i2s_buffer];
+uint8_t pdm_buffer[size_pdm_buffer];
+uint16_t pcm_buffer[size_pcm_buffer];
+uint32_t dac_buffer[size_pcm_buffer];
 static volatile uint16_t *  inBuffer;
 static volatile uint16_t *  outBuffer;
 const uint8_t myDac_signal[7] = {0,40,80,120,160,200,240};
@@ -132,9 +138,9 @@ int main(void)
   MX_PDM2PCM_Init();
   MX_DAC_Init();
   MX_TIM6_Init();
-  /*
+
   HAL_DAC_MspInit(&hdac);
-  HAL_I2S_MspInit(&hi2s2);
+  //HAL_I2S_MspInit(&hi2s2);
   	__HAL_RCC_CRC_CLK_ENABLE();
   		CRC->CR = CRC_CR_RESET;
   		PDM_Filter_Handler_t PDM1_filter_handler;
@@ -150,11 +156,11 @@ int main(void)
   		PDM1_filter_config.decimation_factor = PDM_FILTER_DEC_FACTOR_64;
   		PDM_Filter_setConfig((PDM_Filter_Handler_t *)&PDM1_filter_handler,&PDM1_filter_config);
   		uint16_t i;
-  		*/
-  		HAL_TIM_Base_Start(&htim6);
+
+  		//HAL_TIM_Base_Start(&htim6);
   		//HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
-  		//HAL_I2S_Receive_DMA((I2S_HandleTypeDef *)&hi2s2,&i2s_buffer[0],size_i2s_buffer);
-  		HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_1,(uint32_t *)myDac_signal,7,DAC_ALIGN_12B_R);
+  		HAL_I2S_Receive_DMA((I2S_HandleTypeDef *)&hi2s2,&i2s_buffer[0],size_i2s_buffer);
+  		//HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_1,(uint32_t *)myDac_signal,7,DAC_ALIGN_12B_R);
   while (1)
   {
 	  //AudioProcess();

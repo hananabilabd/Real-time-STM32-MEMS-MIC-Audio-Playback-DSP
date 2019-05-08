@@ -65,7 +65,7 @@ int main(void)
 		PDM_Filter( &((uint8_t*)(pdm_buffer))[0], &pcm_buffer[0], (PDM_Filter_Handler_t *)&PDM1_filter_handler);
 		for(i=0; i<size_pcm_buffer; i++)
 		{
-			HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,pcm_buffer[i]+1000);
+			HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,pcm_buffer[i]);
 		}
 		//HAL_I2S_Receive_DMA(&hAudioInI2s, I2S_InternalBuffer, 160);
 
