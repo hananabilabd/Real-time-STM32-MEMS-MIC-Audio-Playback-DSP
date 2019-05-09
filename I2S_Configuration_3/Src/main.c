@@ -6,9 +6,9 @@
 #include "pdm2pcm.h"
 #include "gpio.h"
 
-#define size_i2s_buffer  96 //=32
-#define size_pdm_buffer  192
-#define size_pcm_buffer  96
+#define size_i2s_buffer  32 //=32
+#define size_pdm_buffer  64
+#define size_pcm_buffer  8
 
 #define AUDIO_CHANNELS         1
 #define MAX_MIC_FREQ           3072
@@ -27,11 +27,11 @@
 #define HTONS(A)  ((((uint16_t)(A) & 0xff00) >> 8) | \
                    (((uint16_t)(A) & 0x00ff) << 8))
 
-static uint16_t I2S_InternalBuffer[PDM_INTERNAL_BUFFER_SIZE_I2S];
-uint16_t PDM_Buffer[PDM_BUFFER_SIZE];
-uint16_t PCM_Buffer[PCM_BUFFER_SIZE];
+static uint16_t I2S_InternalBuffer[size_i2s_buffer];
+uint16_t PDM_Buffer[size_pdm_buffer];
+uint16_t PCM_Buffer[size_pcm_buffer];
 
-uint16_t dac_buffer[PCM_BUFFER_SIZE];
+
 static volatile uint16_t *  inBuffer;
 
 
@@ -42,7 +42,7 @@ void AudioProcess(void)
 	PDM_Filter( &((uint8_t*)(PDM_Buffer))[0], &PCM_Buffer[0], (PDM_Filter_Handler_t *)&PDM1_filter_handler);
 	//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_1);
 
-	for(i=0; i<PCM_BUFFER_SIZE; i++)
+	for(i=0; i<size_pcm_buffer; i++)
 	{
 		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,PCM_Buffer[i]);
 
@@ -54,7 +54,7 @@ void HAL_I2S_RxHalfCpltCallback(I2S_HandleTypeDef *hi2s)
 	uint32_t index = 0;
 
 	uint16_t * DataTempI2S = I2S_InternalBuffer;
-	for(index = 0; index < AudioInCtxSize /4; index++)
+	for(index = 0; index < size_i2s_buffer /2; index++)
 	{
 		PDM_Buffer[index] = HTONS(DataTempI2S[index]);
 	}
@@ -64,8 +64,8 @@ void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
 
 	uint32_t index = 0;
-	uint16_t * DataTempI2S = &I2S_InternalBuffer[AudioInCtxSize/4] ;
-	for(index = 0; index <  AudioInCtxSize /4; index++)
+	uint16_t * DataTempI2S = &I2S_InternalBuffer[size_i2s_buffer /2] ;
+	for(index = 0; index <  size_i2s_buffer /2; index++)
 	{
 		PDM_Buffer[index] = HTONS(DataTempI2S[index]);
 	}
@@ -84,7 +84,7 @@ int main(void)
 	MX_DAC_Init();
 	HAL_DAC_MspInit(&hdac);
 	//__HAL_I2S_DISABLE(&hi2s2);
-	//HAL_I2S_MspInit(&hi2s2);
+	HAL_I2S_MspInit(&hi2s2);
 	__HAL_RCC_CRC_CLK_ENABLE();
 	CRC->CR = CRC_CR_RESET;
 	PDM_Filter_Handler_t PDM1_filter_handler;
@@ -95,14 +95,14 @@ int main(void)
 	PDM1_filter_handler.out_ptr_channels = 1;
 	PDM1_filter_handler.in_ptr_channels = 1;
 	PDM_Filter_Init((PDM_Filter_Handler_t *)(&PDM1_filter_handler));
-	PDM1_filter_config.output_samples_number = 96;
+	PDM1_filter_config.output_samples_number = size_pcm_buffer;
 	PDM1_filter_config.mic_gain = 24 ;
 	PDM1_filter_config.decimation_factor = PDM_FILTER_DEC_FACTOR_64;
 	PDM_Filter_setConfig((PDM_Filter_Handler_t *)&PDM1_filter_handler,&PDM1_filter_config);
-	uint16_t i;
+
 
 	HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
-	HAL_I2S_Receive_DMA((I2S_HandleTypeDef *)&hi2s2,I2S_InternalBuffer, AudioInCtxSize/2);
+	HAL_I2S_Receive_DMA((I2S_HandleTypeDef *)&hi2s2,I2S_InternalBuffer,size_i2s_buffer);
 	//HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_1,(uint32_t *)pcm_buffer,size_pcm_buffer,DAC_ALIGN_12B_R);
 	while (1)
 	{
