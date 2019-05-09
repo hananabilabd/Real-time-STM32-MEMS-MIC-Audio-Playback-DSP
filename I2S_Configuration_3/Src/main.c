@@ -8,7 +8,7 @@
 
 #define size_i2s_buffer  32 //=32
 #define size_pdm_buffer  64
-#define size_pcm_buffer  8
+#define size_pcm_buffer  10
 
 #define AUDIO_CHANNELS         1
 #define MAX_MIC_FREQ           3072
@@ -91,7 +91,7 @@ int main(void)
 	PDM_Filter_Config_t PDM1_filter_config;
 	PDM1_filter_handler.bit_order = PDM_FILTER_BIT_ORDER_LSB;
 	PDM1_filter_handler.endianness = PDM_FILTER_ENDIANNESS_LE;
-	PDM1_filter_handler.high_pass_tap = 2122358088;//2122358088
+	PDM1_filter_handler.high_pass_tap = 2122358088;//2122358088 ,2104533974
 	PDM1_filter_handler.out_ptr_channels = 1;
 	PDM1_filter_handler.in_ptr_channels = 1;
 	PDM_Filter_Init((PDM_Filter_Handler_t *)(&PDM1_filter_handler));
