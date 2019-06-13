@@ -6,10 +6,6 @@
 #include "pdm2pcm.h"
 #include "gpio.h"
 
-#define size_i2s_buffer  32 //=32
-#define size_pdm_buffer  64
-#define size_pcm_buffer  10
-
 #define AUDIO_CHANNELS         1
 #define MAX_MIC_FREQ           3072
 #define N_MS_PER_INTERRUPT     1
@@ -22,11 +18,15 @@
 #define PDM_BUFFER_SIZE                        ((((AUDIO_CHANNELS * AUDIO_SAMPLING_FREQUENCY) / 1000) * 128) / 16)* N_MS
 #define PCM_BUFFER_SIZE                        ((AUDIO_CHANNELS*AUDIO_SAMPLING_FREQUENCY)/1000) * N_MS
 
-#define output_samples_no               (AUDIO_SAMPLING_FREQUENCY/1000) * N_MS_PER_INTERRUPT
+#define output_samples_no               	(AUDIO_SAMPLING_FREQUENCY/1000) * N_MS_PER_INTERRUPT
 #define get_8Bits(reg , pin)             ((reg >> pin*8) & 0x00FF)
 #define HTONS(A)  ((((uint16_t)(A) & 0xff00) >> 8) | \
                    (((uint16_t)(A) & 0x00ff) << 8))
 
+
+#define size_i2s_buffer  32 //=32
+#define size_pdm_buffer  64 //64
+#define size_pcm_buffer  10  //10
 static uint16_t I2S_InternalBuffer[size_i2s_buffer];
 uint16_t PDM_Buffer[size_pdm_buffer];
 uint16_t PCM_Buffer[size_pcm_buffer];
@@ -41,13 +41,13 @@ void AudioProcess(void)
 	PDM_Filter( &((uint8_t*)(PDM_Buffer))[0], &PCM_Buffer[0], (PDM_Filter_Handler_t *)&PDM1_filter_handler);
 	//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_1);
 
-	/*for(i=0; i<size_pcm_buffer; i++)
+	for(i=0; i<size_pcm_buffer; i++)
 	{
 		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,PCM_Buffer[i]);
 
-	}*/
-	HAL_DAC_Stop_DMA(&hdac,DAC_CHANNEL_1);
-	HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_1,(uint32_t *)PCM_Buffer,size_pcm_buffer,DAC_ALIGN_12B_R);
+	}
+	//HAL_DAC_Stop_DMA(&hdac,DAC_CHANNEL_1);
+	//HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_1,(uint32_t *)PCM_Buffer,size_pcm_buffer,DAC_ALIGN_12B_R);
 }
 void HAL_I2S_RxHalfCpltCallback(I2S_HandleTypeDef *hi2s)
 {
@@ -101,7 +101,7 @@ int main(void)
 	PDM_Filter_setConfig((PDM_Filter_Handler_t *)&PDM1_filter_handler,&PDM1_filter_config);
 
 
-	//HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
+	HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
 	HAL_I2S_Receive_DMA((I2S_HandleTypeDef *)&hi2s2,I2S_InternalBuffer,size_i2s_buffer);
 
 	//HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_1,(uint32_t *)PCM_Buffer,size_pcm_buffer,DAC_ALIGN_12B_R);
