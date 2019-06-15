@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP WM8731SEDS_RV
+D WOLFSON MICROELECTRONICS - WM8731SEDS/RV - DAC, AUDIO, 24BIT, HEADPHONE, 28SSOP
+K
+F https://d3uzseaevmutz1.cloudfront.net/pubs/proDatasheet/WM8731_v4.9.pdf
+$ENDCMP
+#
+#End Doc Library

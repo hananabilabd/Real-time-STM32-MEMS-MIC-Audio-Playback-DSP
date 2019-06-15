@@ -1,0 +1,11 @@
+FILE_TYPE = MULTI_PHYS_TABLE;
+
+PART 'CS43L22_CNZ'
+CLASS = IC
+{========================================================================================}
+:"MANUFACTURER_NAME", "MANUFACTURER_PART_NUMBER"= "PART_NUMBER", "JEDEC_TYPE", "PACK_TYPE", "MOUSER_PART_NUMBER", "MOUSER_PRICE/STOCK", "RS_PART_NUMBER", "RS_PRICE/STOCK", "DESCRIPTION", "DATASHEET", "HEIGHT";
+{========================================================================================}
+ "Cirrus Logic", "CS43L22-CNZ" (!) = "", "QFN50P600X600X100-41N-D", "Quad Flat No-Lead", "777-CS43L22-CNZ", "https://www.mouser.com/Search/Refine.aspx?Keyword=777-CS43L22-CNZ", "7165851P", "http://uk.rs-online.com/web/p/products/7165851P", "CS43L22-CNZ, Audio DAC 24 bit-, 96ksps Serial, 40-Pin QFN", "https://d3uzseaevmutz1.cloudfront.net/pubs/proDatasheet/CS43L22_F2.pdf", "1 mm"
+END_PART
+
+END.

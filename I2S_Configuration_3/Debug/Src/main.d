@@ -36,7 +36,12 @@ Src/main.o: ../Src/main.c \
  F:/ITI/Graduation/Digital-Hearing-Aid-STM32/I2S_Configuration_3/Inc/i2s.h \
  F:/ITI/Graduation/Digital-Hearing-Aid-STM32/I2S_Configuration_3/Inc/pdm2pcm.h \
  F:/ITI/Graduation/Digital-Hearing-Aid-STM32/I2S_Configuration_3/Middlewares/ST/STM32_Audio/Addons/PDM/Inc/pdm2pcm_glo.h \
- F:/ITI/Graduation/Digital-Hearing-Aid-STM32/I2S_Configuration_3/Inc/gpio.h
+ F:/ITI/Graduation/Digital-Hearing-Aid-STM32/I2S_Configuration_3/Inc/gpio.h \
+ F:/ITI/Graduation/Digital-Hearing-Aid-STM32/I2S_Configuration_3/FilteringFunctionInclude/arm_math.h \
+ F:/ITI/Graduation/Digital-Hearing-Aid-STM32/I2S_Configuration_3/Drivers/CMSIS/Include/cmsis_compiler.h \
+ F:/ITI/Graduation/Digital-Hearing-Aid-STM32/I2S_Configuration_3/FilteringFunctionInclude/math_helper.h \
+ F:/ITI/Graduation/Digital-Hearing-Aid-STM32/I2S_Configuration_3/FilteringFunctionInclude/arm_math.h \
+ F:/ITI/Graduation/Digital-Hearing-Aid-STM32/I2S_Configuration_3/Inc/cascade_example.h
 
 F:/ITI/Graduation/Digital-Hearing-Aid-STM32/I2S_Configuration_3/Inc/main.h:
 
@@ -113,3 +118,13 @@ F:/ITI/Graduation/Digital-Hearing-Aid-STM32/I2S_Configuration_3/Inc/pdm2pcm.h:
 F:/ITI/Graduation/Digital-Hearing-Aid-STM32/I2S_Configuration_3/Middlewares/ST/STM32_Audio/Addons/PDM/Inc/pdm2pcm_glo.h:
 
 F:/ITI/Graduation/Digital-Hearing-Aid-STM32/I2S_Configuration_3/Inc/gpio.h:
+
+F:/ITI/Graduation/Digital-Hearing-Aid-STM32/I2S_Configuration_3/FilteringFunctionInclude/arm_math.h:
+
+F:/ITI/Graduation/Digital-Hearing-Aid-STM32/I2S_Configuration_3/Drivers/CMSIS/Include/cmsis_compiler.h:
+
+F:/ITI/Graduation/Digital-Hearing-Aid-STM32/I2S_Configuration_3/FilteringFunctionInclude/math_helper.h:
+
+F:/ITI/Graduation/Digital-Hearing-Aid-STM32/I2S_Configuration_3/FilteringFunctionInclude/arm_math.h:
+
+F:/ITI/Graduation/Digital-Hearing-Aid-STM32/I2S_Configuration_3/Inc/cascade_example.h:

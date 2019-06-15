@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP CS43L22-CNZ
+D CS43L22-CNZ, Audio DAC 24 bit-, 96ksps Serial, 40-Pin QFN
+K
+F https://d3uzseaevmutz1.cloudfront.net/pubs/proDatasheet/CS43L22_F2.pdf
+$ENDCMP
+#
+#End Doc Library

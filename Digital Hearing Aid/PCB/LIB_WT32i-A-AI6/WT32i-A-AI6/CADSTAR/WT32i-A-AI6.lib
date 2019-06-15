@@ -1,0 +1,18 @@
+.WT32i-A-AI6 :1 ;Bluetooth / 802.15.1 Modules Class1 BT 3.0, Audio Module, Int Ant
+WT32I-A-AI6
+*STM IC
+*NGS
+*PLB 1="VREG_ENA" 2="GND_1" 3="GND_2" 4="GND_3" 5="AIO0" 6="AIO1" 7="PIO0" 8="PIO1" 9="PIO2" 10="PIO3" 11="USB_D-" 12="USB_D+" 13="PIO9" 14="PIO10" 15="UART_RXD" 16="UART_TXD" 17="VDD_IO" 18="GND_4" 19="RESET" 20="UART_NRTS" 21="UART_NCTS" 22="PIO8" 23="PIO7" 24="PIO6" 25="PIO5" 26="PIO4" 27="PCM_IN" 28="PCM_OUT" 29="PCM_SYNC" 30="PCM_CLK" 31="GND_5" 32="SPI_NCSB" 33="SPI_CLK" 34="SPI_MISO" 35="SPI_MOSI" 36="LED0" 37="VDD_BAT" 38="VDD_CHG" 39="GND_6" &
+40="MIC_BIAS" 41="AUDIO_IN_P_RIGHT" 42="AUDIO_IN_N_RIGHT" 43="GND_7" 44="AUDIO_IN_P_LEFT" 45="AUDIO_IN_N_LEFT" 46="AUDIO_OUT_N_RIGHT" 47="AUDIO_OUT_P_RIGHT" 48="GND_8" 49="AUDIO_OUT_N_LEFT" 50="AUDIO_OUT_P_LEFT"
+*MXP 50
+*DFN WT32i-A-AI6
+~!Manufacturer_Name (Silicon Labs)
+~!Manufacturer_Part_Number (WT32i-A-AI6)
+~!Mouser Part Number (603-WT32I-A-AI6)
+~!Link Mouser Price/Stock (https://www.mouser.com/Search/Refine.aspx?Keyword=603-WT32I-A-AI6)
+~!RS Part Number (-)
+~!RS Price/Stock (-)
+~!Link Datasheet (http://www.mouser.com/ds/2/368/Bluegigga Technologies_WT32i_Datasheet-558681.pdf)
+~!Height (-)
+WT32i-A-AI6
+1.1!U 2.1!U 3.1!U 4.1!U 5.1!U 6.1!U 7.1!U 8.1!U 9.1!U 10.1!U 11.1!U 12.1!U 13.1!U 14.1!U 15.1!U 16.1!U 17.1!U 18.1!U 19.1!U 20.1!U 21.1!U 22.1!U 23.1!U 24.1!U 25.1!U 26.1!U 27.1!U 28.1!U 29.1!U 30.1!U 31.1!U 32.1!U 33.1!U 34.1!U 35.1!U 36.1!U 37.1!U 38.1!U 39.1!U 40.1!U 41.1!U 42.1!U 43.1!U 44.1!U 45.1!U 46.1!U 47.1!U 48.1!U 49.1!U 50.1!U 

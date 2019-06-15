@@ -1,0 +1,40 @@
+Version 17
+setwindow pcb
+new
+newdrawfillin "d85_25.dra" "Shape Symbol"
+QtSignal SPBDesignInitPrompt spbdip_cancel_button clicked
+setwindow pcb
+generaledit
+prmed
+setwindow FORM.prmedit
+FORM prmedit design
+FORM prmedit units Millimeter
+FORM prmedit accuracy 3
+FORM prmedit move_x 10
+FORM prmedit move_y 10
+FORM prmedit display
+setwindow FORM.prmedit
+FORM prmedit view_grids_button
+setwindow FORM.grid
+FORM grid non_etch non_etch_x_grids 1
+FORM grid non_etch non_etch_y_grids 1
+FORM grid top subclass_x_grids 1
+FORM grid top subclass_y_grids 1
+FORM grid bottom subclass_x_grids 1
+FORM grid bottom subclass_y_grids 1
+FORM grid display YES
+FORM grid done
+setwindow FORM.prmedit
+FORM prmedit done
+setwindow pcb
+shape add rect
+pick grid -0.125 0.425
+pick grid 0.125 -0.3
+shape add circle
+pick grid 0 -0.3
+pick grid 0 -0.425
+shape merge shapes
+pick grid -0.125 0.425
+pick grid 0 -0.425
+Save
+Exit

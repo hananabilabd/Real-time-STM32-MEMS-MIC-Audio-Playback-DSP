@@ -1,0 +1,10 @@
+(unit MM)
+
+(package "WT32I-A-AI6"
+    (type UNDEF)
+    (uver 2)
+    (mountForm default
+        (footprintRef "WT32I-A-AI6")
+        (spec "default")
+    )
+)

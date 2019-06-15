@@ -1,0 +1,30 @@
+#Padstack Editor Script
+QtSignal MainWindow Units CurrentIndexChanged Millimeter
+QtSignal MainWindow Units activated Millimeter
+QtSignal MainWindow DecimalPlaces CurrentIndexChanged 4
+QtSignal MainWindow DecimalPlaces activated 4
+
+QtSignal GuidedTabsParent GuidedTabs currentChanged "Design Layers"
+
+#Begin Layer
+QtSignal GuidedDesignLayersTab LayersTable cellClicked 0 "Regular Pad" None 0 2
+QtSignal GuidedDesignLayersTab PadShape CurrentIndexChanged "Shape symbol"
+QtSignal GuidedDesignLayersTab PadShape activated "Shape symbol"
+QtSignal GuidedDesignLayersTab PadShapeSymbolBrowse clicked
+QtSignal shapeSymbolBrowser SymbolsList selectionChanged d85_25
+QtSignal shapeSymbolBrowser SymbolsList clicked d85_25
+QtSignal shapeSymbolBrowser OK clicked
+
+QtSignal GuidedTabsParent GuidedTabs currentChanged Start
+QtSignal GuidedTabsParent PadstackTypes itemClicked "SMD Pin"
+QtSignal GuidedTabsParent PadstackTypes currentRowChanged 1
+QtSignal GuidedTabsParent PadstackTypes itemSelectionChanged "SMD Pin"
+QtSignal GuidedTabsParent PadstackTypes itemClicked "SMD Pin"
+
+QtSignal MainWindow Check triggered
+QtSignal MainWindow SaveAs triggered
+QtFillin d85_25
+QtFillin Yes
+
+QtSignal MainWindow Exit triggered
+#End of Pad Editor Script

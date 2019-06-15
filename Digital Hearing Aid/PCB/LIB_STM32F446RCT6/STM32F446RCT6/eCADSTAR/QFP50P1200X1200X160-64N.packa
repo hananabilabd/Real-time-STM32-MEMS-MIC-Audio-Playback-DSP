@@ -1,0 +1,13 @@
+(unit MM)
+
+(package "STM32F446RCT6"
+    (type UNDEF)
+    (uver 2)
+    (cuser "SamacSys")
+    (uuser "SamacSys")
+    (utime 2018-06-06-11:10:45)
+    (mountForm default
+        (footprintRef "QFP50P1200X1200X160-64N")
+        (spec "System")
+    )
+)

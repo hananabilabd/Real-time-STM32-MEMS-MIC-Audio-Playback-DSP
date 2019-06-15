@@ -1,0 +1,11 @@
+FILE_TYPE = MULTI_PHYS_TABLE;
+
+PART 'WM8731SEDS_RV'
+CLASS = IC
+{========================================================================================}
+:"MANUFACTURER_NAME", "MANUFACTURER_PART_NUMBER"= "PART_NUMBER", "JEDEC_TYPE", "PACK_TYPE", "MOUSER_PART_NUMBER", "MOUSER_PRICE/STOCK", "RS_PART_NUMBER", "RS_PRICE/STOCK", "DESCRIPTION", "DATASHEET", "HEIGHT";
+{========================================================================================}
+ "WOLFSON MICROELECTRONICS", "WM8731SEDS/RV" (!) = "", "SOP65P780X200-28N", "Small Outline Packages", "", "", "", "", "WOLFSON MICROELECTRONICS - WM8731SEDS/RV - DAC, AUDIO, 24BIT, HEADPHONE, 28SSOP", "https://d3uzseaevmutz1.cloudfront.net/pubs/proDatasheet/WM8731_v4.9.pdf", "2 mm"
+END_PART
+
+END.

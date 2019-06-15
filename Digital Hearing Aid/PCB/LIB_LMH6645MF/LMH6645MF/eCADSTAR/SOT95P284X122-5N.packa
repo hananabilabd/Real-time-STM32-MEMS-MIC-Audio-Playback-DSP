@@ -1,0 +1,13 @@
+(unit MM)
+
+(package "LMH6645MF"
+    (type UNDEF)
+    (uver 2)
+    (cuser "SamacSys")
+    (uuser "SamacSys")
+    (utime 2019-02-04-13:52:15)
+    (mountForm default
+        (footprintRef "SOT95P284X122-5N")
+        (spec "System")
+    )
+)

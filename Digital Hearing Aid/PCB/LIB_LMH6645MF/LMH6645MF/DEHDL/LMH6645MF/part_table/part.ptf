@@ -1,0 +1,11 @@
+FILE_TYPE = MULTI_PHYS_TABLE;
+
+PART 'LMH6645MF'
+CLASS = IC
+{========================================================================================}
+:"MANUFACTURER_NAME", "MANUFACTURER_PART_NUMBER"= "PART_NUMBER", "JEDEC_TYPE", "PACK_TYPE", "MOUSER_PART_NUMBER", "MOUSER_PRICE/STOCK", "RS_PART_NUMBER", "RS_PRICE/STOCK", "DESCRIPTION", "DATASHEET";
+{========================================================================================}
+ "Texas Instruments", "LMH6645MF" (!) = "", "SOT95P284X122-5N", "Other", "926-LMH6645MF", "https://www.mouser.com/Search/Refine.aspx?Keyword=926-LMH6645MF", "", "", "Amplifier", ""
+END_PART
+
+END.

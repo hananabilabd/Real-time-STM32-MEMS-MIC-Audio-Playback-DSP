@@ -15,7 +15,10 @@ C_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+BasicMathFunctions \
 Drivers/STM32F4xx_HAL_Driver/Src \
+FilteringFunctions \
 Src \
+SupportFunctions \
 startup \
 
