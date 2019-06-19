@@ -209,21 +209,11 @@ void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
 
 void HAL_I2S_TxHalfCpltCallback(I2S_HandleTypeDef *hi2s3)
 {
-	uint32_t index1 = 0;
-	uint16_t * DataTempI2S_3 = PCM_Buffer;
-	for(index1 = 0; index1 < size_pcm_buffer / 2; index1++)
-	{
-		 = HTONS(DataTempI2S_3[index1]);
-	}
+
 }
 void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *hi2s3)
 {
-	uint32_t index1 = 0;
-	uint16_t * DataTempI2S_3 = &PCM_Buffer[size_pcm_buffer / 2];
-	for(index1 = 0; index1 < size_pcm_buffer / 2; index1++)
-	{
-		 = HTONS(DataTempI2S_3[index1]);
-	}
+
 }
 
 int main(void)
