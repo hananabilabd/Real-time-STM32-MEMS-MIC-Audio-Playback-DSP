@@ -1,9 +1,0 @@
-EESchema-DOCLIB  Version 2.0
-#
-$CMP WT32i-A-AI6
-D Bluetooth / 802.15.1 Modules Class1 BT 3.0, Audio Module, Int Ant
-K
-F http://www.mouser.com/ds/2/368/Bluegigga Technologies_WT32i_Datasheet-558681.pdf
-$ENDCMP
-#
-#End Doc Library

@@ -26,7 +26,10 @@
  * External Declarations for Input and Output buffers
  * ------------------------------------------------------------------- */
 
-extern float32_t testInput_f32[TESTLENGTH];
+ float32_t testInput_f32[TESTLENGTH] ; //testInput_f32[320]
+
+
+
 static float32_t testOutput[TESTLENGTH];
 
 extern float32_t testRefOutput_f32[TESTLENGTH];

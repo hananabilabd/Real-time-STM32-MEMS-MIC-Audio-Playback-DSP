@@ -109,41 +109,46 @@ void cascade(void){
 }
 
 void SystemClock_Config(void);
+char AudioProcessFlag=0;
 void AudioProcess(void)
 {
 	uint8_t i;
 	PDM_Filter( &((uint8_t*)(PDM_Buffer))[0], &PCM_Buffer[0], (PDM_Filter_Handler_t *)&PDM1_filter_handler);
-	//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_1);
 
+	//HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_1);
 	for(i=0; i<size_pcm_buffer; i++)
 	{
 		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,PCM_Buffer[i]);
 
 	}
+
 	//HAL_DAC_Stop_DMA(&hdac,DAC_CHANNEL_1);
 	//HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_1,(uint32_t *)PCM_Buffer,size_pcm_buffer,DAC_ALIGN_12B_R);
 }
 void HAL_I2S_RxHalfCpltCallback(I2S_HandleTypeDef *hi2s)
 {
-	uint32_t index = 0;
 
+	uint32_t index = 0;
 	uint16_t * DataTempI2S = I2S_InternalBuffer;
 	for(index = 0; index < size_i2s_buffer /2; index++)
 	{
 		PDM_Buffer[index] = HTONS(DataTempI2S[index]);
 	}
-	AudioProcess();
+	AudioProcessFlag = 1;
+	//AudioProcess();
+
 }
 void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
-
 	uint32_t index = 0;
 	uint16_t * DataTempI2S = &I2S_InternalBuffer[size_i2s_buffer /2] ;
 	for(index = 0; index <  size_i2s_buffer /2; index++)
 	{
 		PDM_Buffer[index] = HTONS(DataTempI2S[index]);
 	}
-	AudioProcess();
+	AudioProcessFlag = 1;
+	//AudioProcess();
+
 
 }
 int main(void)
@@ -181,7 +186,11 @@ int main(void)
 	//cascade();
 	while (1)
 	{
-		//HAL_I2S_Receive((I2S_HandleTypeDef *)&hi2s2, &i2s_buffer[0], size_i2s_buffer, 10000);
+		if ( AudioProcessFlag ==1){
+			AudioProcess();
+			AudioProcessFlag =0;
+		}
+
 
 
 	}
@@ -204,8 +213,8 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 4;
-  RCC_OscInitStruct.PLL.PLLN = 100;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+  RCC_OscInitStruct.PLL.PLLN = 200;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV4;
   RCC_OscInitStruct.PLL.PLLQ = 2;
   RCC_OscInitStruct.PLL.PLLR = 2;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -226,7 +235,13 @@ void SystemClock_Config(void)
     Error_Handler();
   }
   PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_I2S_APB1;
-  PeriphClkInitStruct.I2sApb1ClockSelection = RCC_I2SAPB1CLKSOURCE_PLLR;
+  PeriphClkInitStruct.PLLI2S.PLLI2SN = 192;
+  PeriphClkInitStruct.PLLI2S.PLLI2SP = RCC_PLLI2SP_DIV2;
+  PeriphClkInitStruct.PLLI2S.PLLI2SM = 5;
+  PeriphClkInitStruct.PLLI2S.PLLI2SR = 2;
+  PeriphClkInitStruct.PLLI2S.PLLI2SQ = 2;
+  PeriphClkInitStruct.PLLI2SDivQ = 1;
+  PeriphClkInitStruct.I2sApb1ClockSelection = RCC_I2SAPB1CLKSOURCE_PLLI2S;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
   {
     Error_Handler();

@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=F:/ITI/Graduation/Digital-Hearing-Aid-STM32/I2S_Configuration_3/Inc
+HeaderPath=F:/ITI/Digital-Hearing-Aid-STM32/I2S_Configuration_3/Inc
 HeaderFiles=gpio.h;crc.h;dac.h;dma.h;i2s.h;pdm2pcm.h;stm32f4xx_it.h;stm32f4xx_hal_conf.h;main.h;
-SourcePath=F:/ITI/Graduation/Digital-Hearing-Aid-STM32/I2S_Configuration_3/Src
+SourcePath=F:/ITI/Digital-Hearing-Aid-STM32/I2S_Configuration_3/Src
 SourceFiles=gpio.c;crc.c;dac.c;dma.c;i2s.c;pdm2pcm.c;stm32f4xx_it.c;stm32f4xx_hal_msp.c;main.c;
 
 [PreviousLibFiles]

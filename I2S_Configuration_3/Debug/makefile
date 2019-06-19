@@ -37,7 +37,7 @@ all: I2S_Configuration_3.elf
 I2S_Configuration_3.elf: $(OBJS) $(USER_OBJS) ../STM32F446RCTx_FLASH.ld
 	@echo 'Building target: $@'
 	@echo 'Invoking: MCU GCC Linker'
-	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -L"F:\ITI\Graduation\Digital-Hearing-Aid-STM32\I2S_Configuration_3\Middlewares\ST\STM32_Audio\Addons\PDM\Lib"  -specs=nosys.specs -specs=nano.specs -T"../STM32F446RCTx_FLASH.ld" -Wl,-Map=output.map -Wl,--gc-sections -o "I2S_Configuration_3.elf" @"objects.list" $(USER_OBJS) $(LIBS) -lm
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -L"F:\ITI\Digital-Hearing-Aid-STM32\I2S_Configuration_3\Middlewares\ST\STM32_Audio\Addons\PDM\Lib"  -specs=nosys.specs -specs=nano.specs -T"../STM32F446RCTx_FLASH.ld" -Wl,-Map=output.map -Wl,--gc-sections -o "I2S_Configuration_3.elf" @"objects.list" $(USER_OBJS) $(LIBS) -lm
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build
