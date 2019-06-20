@@ -207,14 +207,6 @@ void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
 
 }
 
-void HAL_I2S_TxHalfCpltCallback(I2S_HandleTypeDef *hi2s3)
-{
-
-}
-void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *hi2s3)
-{
-
-}
 
 int main(void)
 {
