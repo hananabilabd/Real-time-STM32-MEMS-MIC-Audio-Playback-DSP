@@ -1,54 +1,4 @@
-/* USER CODE BEGIN Header */
-/**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * This notice applies to any and all portions of this file
-  * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether 
-  * inserted by the user or by software development tools
-  * are owned by their respective copyright owners.
-  *
-  * Copyright (c) 2019 STMicroelectronics International N.V. 
-  * All rights reserved.
-  *
-  * Redistribution and use in source and binary forms, with or without 
-  * modification, are permitted, provided that the following conditions are met:
-  *
-  * 1. Redistribution of source code must retain the above copyright notice, 
-  *    this list of conditions and the following disclaimer.
-  * 2. Redistributions in binary form must reproduce the above copyright notice,
-  *    this list of conditions and the following disclaimer in the documentation
-  *    and/or other materials provided with the distribution.
-  * 3. Neither the name of STMicroelectronics nor the names of other 
-  *    contributors to this software may be used to endorse or promote products 
-  *    derived from this software without specific written permission.
-  * 4. This software, including modifications and/or derivative works of this 
-  *    software, must execute solely and exclusively on microcontroller or
-  *    microprocessor devices manufactured by or for STMicroelectronics.
-  * 5. Redistribution and use of this software other than as permitted under 
-  *    this license is void and will automatically terminate your rights under 
-  *    this license. 
-  *
-  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS" 
-  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT 
-  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
-  * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
-  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT 
-  * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
-  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
-  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
-  ******************************************************************************
-  */
-/* USER CODE END Header */
 
-/* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "crc.h"
 #include "dac.h"
@@ -58,124 +8,83 @@
 #include "pdm2pcm.h"
 #include "gpio.h"
 #include "MY_CS43L22.h"
-#include "arm_math.h"
-#include "math_helper.h"
-#include "cascade_example.h"
-
-
+//#include "arm_math.h"
+//#include "math_helper.h"
+//#include "cascade_example.h"
+#include "Equalizer.h"
+#include "bandpass.h"
+#include "rtwtypes.h"
+#include "parametricEqualizer.h"
+void pdmFilter(uint16_t *mic_buff,int16_t *MW_pcm_data,uint32_t num_samples);
 #define get_8Bits(reg , pin)             ((reg >> pin*8) & 0x00FF)
 #define HTONS(A)  ((((uint16_t)(A) & 0xff00) >> 8) | (((uint16_t)(A) & 0x00ff) << 8))
+#define MW_MIC_FRAME_LENGTH   882
+#define MW_PDM_SAMPLES_UINT16_INPUT_BUFFER_SIZE  ((MW_MIC_FRAME_LENGTH) * (64) * (1) / 8 / 2)
 
-
-#define size_i2s_buffer  32 //=32
-#define size_pdm_buffer  200 //64
-#define size_pcm_buffer  10  //10
+#define size_i2s_buffer  MW_PDM_SAMPLES_UINT16_INPUT_BUFFER_SIZE *2//=32
+#define size_pdm_buffer  MW_PDM_SAMPLES_UINT16_INPUT_BUFFER_SIZE //64
+#define size_pcm_buffer  882  //10
 static uint16_t I2S_InternalBuffer[size_i2s_buffer];
 uint16_t PDM_Buffer[size_pdm_buffer];
-uint16_t PCM_Buffer[size_pcm_buffer];
+int16_t PCM_Buffer[size_pcm_buffer];
 
-void cascade(void){
-	float32_t  *inputF32, *outputF32;
-	  arm_biquad_cas_df1_32x64_ins_q31 S1;
-	  arm_biquad_cas_df1_32x64_ins_q31 S2;
-	  arm_biquad_casd_df1_inst_q31 S3;
-	  arm_biquad_casd_df1_inst_q31 S4;
-	  arm_biquad_casd_df1_inst_q31 S5;
-	  int i;
-	  int32_t status;
-
-	  inputF32 = &testInput_f32[0];
-	  outputF32 = &testOutput[0];
-
-	  /* Initialize the state and coefficient buffers for all Biquad sections */
-
-	  arm_biquad_cas_df1_32x64_init_q31(&S1, NUMSTAGES,
-	            (q31_t *) &coeffTable[190*0 + 10*(gainDB[0] + 9)],
-	            &biquadStateBand1Q31[0], 2);
-
-	  arm_biquad_cas_df1_32x64_init_q31(&S2, NUMSTAGES,
-	            (q31_t *) &coeffTable[190*1 + 10*(gainDB[1] + 9)],
-	            &biquadStateBand2Q31[0], 2);
-
-	  arm_biquad_cascade_df1_init_q31(&S3, NUMSTAGES,
-	          (q31_t *) &coeffTable[190*2 + 10*(gainDB[2] + 9)],
-	          &biquadStateBand3Q31[0], 2);
-
-	  arm_biquad_cascade_df1_init_q31(&S4, NUMSTAGES,
-	          (q31_t *) &coeffTable[190*3 + 10*(gainDB[3] + 9)],
-	          &biquadStateBand4Q31[0], 2);
-
-	  arm_biquad_cascade_df1_init_q31(&S5, NUMSTAGES,
-	          (q31_t *) &coeffTable[190*4 + 10*(gainDB[4] + 9)],
-	          &biquadStateBand5Q31[0], 2);
+int16_t Out_Buffer[size_pcm_buffer];
 
 
-	  /* Call the process functions and needs to change filter coefficients
-	     for varying the gain of each band */
+void stm32f4_mic_i2s_init(uint32_t sample_freq)
+{
+    uint8_t i2s_div, i2s_odd;
+    I2S_InitTypeDef I2S_InitType;
 
-	  for(i=0; i < NUMBLOCKS; i++)
-	  {
+    /* Enable clock to SPI2 */
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
 
-	    /* ----------------------------------------------------------------------
-	    ** Convert block of input data from float to Q31
-	    ** ------------------------------------------------------------------- */
+    /* I2S structure initialization */
+    I2S_InitType.I2S_AudioFreq = sample_freq;
+    I2S_InitType.I2S_MCLKOutput = I2S_MCLKOutput_Disable;
+    I2S_InitType.I2S_DataFormat = I2S_DataFormat_16b;
+    I2S_InitType.I2S_Mode = I2S_Mode_MasterRx;
+    I2S_InitType.I2S_Standard = I2S_Standard_LSB;
+    I2S_InitType.I2S_CPOL = I2S_CPOL_High;
 
-	    arm_float_to_q31(inputF32 + (i*BLOCKSIZE), inputQ31, BLOCKSIZE);
+    /* Calculate I2S prescalers */
+    /* The sampling frequency is increased by MW_PDM_DECIMATION_FACTOR as mic produces
+       audio samples in PDM format */
+    MW_I2S_GetPrescaler(sample_freq * MW_PDM_DECIMATION_FACTOR, /* uint32_t audio_sample_freqHz, */
+            1, /* uint8_t num_chls, */
+            1, /* uint8_t nb_bits_per_sample, */
+            I2S_InitType.I2S_MCLKOutput, /* uint8_t enable_master_clk, */
+            &i2s_div,
+            &i2s_odd);
 
-	    /* ----------------------------------------------------------------------
-	    ** Scale down by 1/8.  This provides additional headroom so that the
-	    ** graphic EQ can apply gain.
-	    ** ------------------------------------------------------------------- */
+    /* Set the I2S Prescalers */
+    MW_I2S_SetPrescaler(SPI2, i2s_div, i2s_odd, &I2S_InitType);
 
-	    arm_scale_q31(inputQ31, 0x7FFFFFFF, -3, inputQ31, BLOCKSIZE);
+    /* Enable DMA for Rx */
+    SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, ENABLE);
 
-	    /* ----------------------------------------------------------------------
-	    ** Call the Q31 Biquad Cascade DF1 32x64 process function for band1, band2
-	    ** ------------------------------------------------------------------- */
-
-	    arm_biquad_cas_df1_32x64_q31(&S1, inputQ31, outputQ31, BLOCKSIZE);
-	    arm_biquad_cas_df1_32x64_q31(&S2, outputQ31, outputQ31, BLOCKSIZE);
-
-	    /* ----------------------------------------------------------------------
-	    ** Call the Q31 Biquad Cascade DF1 process function for band3, band4, band5
-	    ** ------------------------------------------------------------------- */
-
-	    arm_biquad_cascade_df1_q31(&S3, outputQ31, outputQ31, BLOCKSIZE);
-	    arm_biquad_cascade_df1_q31(&S4, outputQ31, outputQ31, BLOCKSIZE);
-	    arm_biquad_cascade_df1_q31(&S5, outputQ31, outputQ31, BLOCKSIZE);
-
-	    /* ----------------------------------------------------------------------
-	    ** Convert Q31 result back to float
-	    ** ------------------------------------------------------------------- */
-
-	    arm_q31_to_float(outputQ31, outputF32 + (i * BLOCKSIZE), BLOCKSIZE);
-
-	    /* ----------------------------------------------------------------------
-	    ** Scale back up
-	    ** ------------------------------------------------------------------- */
-
-	    arm_scale_f32(outputF32 + (i * BLOCKSIZE), 8.0f, outputF32 + (i * BLOCKSIZE), BLOCKSIZE);
-	  };
+    /* Enable I2S */
+    I2S_Cmd(SPI2, ENABLE);
 }
-
-
-
 void SystemClock_Config(void);
 char AudioProcessFlag=0;
 void AudioProcess(void)
 {
 	uint8_t i;
-	PDM_Filter( &((uint8_t*)(PDM_Buffer))[0], &PCM_Buffer[0], (PDM_Filter_Handler_t *)&PDM1_filter_handler);
-
+	//PDM_Filter( &((uint8_t*)(PDM_Buffer))[0], &PCM_Buffer[0], (PDM_Filter_Handler_t *)&PDM1_filter_handler);
+	pdmFilter(PDM_Buffer,PCM_Buffer,MW_MIC_FRAME_LENGTH);
+	//step();
+	//BandpassFilter(&PCM_Buffer[0] ,&Out_Buffer[0]);
+	//equaizerProcess(&PCM_Buffer[0],&Out_Buffer[0]);
 	//HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_1);
-	/*for(i=0; i<size_pcm_buffer; i++)
+	for(i=0; i<size_pcm_buffer; i++)
 	{
 		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,PCM_Buffer[i]);
-	}*/
+	}
 
 	// send the PCM_buffer by I2S3 to the audio codec CS43L22
-	HAL_I2S_Transmit_DMA((I2S_HandleTypeDef *)&hi2s3, PCM_Buffer, size_pcm_buffer);
-	//
+	//HAL_I2S_Transmit_DMA((I2S_HandleTypeDef *)&hi2s3, PCM_Buffer, size_pcm_buffer);
+
 
 	//HAL_DAC_Stop_DMA(&hdac,DAC_CHANNEL_1);
 	//HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_1,(uint32_t *)PCM_Buffer,size_pcm_buffer,DAC_ALIGN_12B_R);
@@ -187,7 +96,8 @@ void HAL_I2S_RxHalfCpltCallback(I2S_HandleTypeDef *hi2s)
 	uint16_t * DataTempI2S = I2S_InternalBuffer;
 	for(index = 0; index < size_i2s_buffer /2; index++)
 	{
-		PDM_Buffer[index] = HTONS(DataTempI2S[index]);
+		//PDM_Buffer[index] = HTONS(DataTempI2S[index]);
+		PDM_Buffer[index] = DataTempI2S[index];
 	}
 	AudioProcessFlag = 1;
 	//AudioProcess();
@@ -199,12 +109,11 @@ void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
 	uint16_t * DataTempI2S = &I2S_InternalBuffer[size_i2s_buffer /2] ;
 	for(index = 0; index <  size_i2s_buffer /2; index++)
 	{
-		PDM_Buffer[index] = HTONS(DataTempI2S[index]);
+		//PDM_Buffer[index] = HTONS(DataTempI2S[index]);
+		PDM_Buffer[index] = DataTempI2S[index];
 	}
 	AudioProcessFlag = 1;
 	//AudioProcess();
-
-
 }
 
 
@@ -220,13 +129,13 @@ int main(void)
   MX_DAC_Init();
   MX_I2S3_Init();
   MX_I2C1_Init();
-
+/*
 // init the CS43 in I2S mode
   CS43_Init(hi2c1, MODE_I2S);
   CS43_SetVolume(50);
   CS43_Enable_RightLeft(CS43_RIGHT_LEFT);
   CS43_Start();
-//
+*/
   HAL_DAC_MspInit(&hdac);
   	//__HAL_I2S_DISABLE(&hi2s2);
   	HAL_I2S_MspInit(&hi2s2);
@@ -244,7 +153,9 @@ int main(void)
   	PDM1_filter_config.mic_gain = 24 ;
   	PDM1_filter_config.decimation_factor = PDM_FILTER_DEC_FACTOR_64;
   	PDM_Filter_setConfig((PDM_Filter_Handler_t *)&PDM1_filter_handler,&PDM1_filter_config);
-
+  	//Equalizer_Init(&PCM_Buffer[0],&Out_Buffer[0]);
+  	//SVC_init();
+  	parametricEqualizer_Init(&PCM_Buffer[0],&Out_Buffer[0]);
   	HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
   	HAL_I2S_Receive_DMA((I2S_HandleTypeDef *)&hi2s2,I2S_InternalBuffer,size_i2s_buffer);
   	//HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_1,(uint32_t *)PCM_Buffer,size_pcm_buffer,DAC_ALIGN_12B_R);
@@ -253,12 +164,15 @@ int main(void)
 
   while (1)
   {
+
 	  if ( AudioProcessFlag ==1){
 	  			AudioProcess();
 	  			AudioProcessFlag =0;
 	  		}
+
+
   }
-  /* USER CODE END 3 */
+
 }
 
 /**

@@ -43,7 +43,11 @@
 									<listOptionValue builtIn="false" value="../Middlewares/ST/STM32_Audio/Addons/PDM/Inc"/>
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Include"/>
-									<listOptionValue builtIn="false" value="&quot;D:\ITI_Intake_39\Graduation_Project\STM32CubeMX\Projects\Digital-Hearing-Aid-STM32\I2S_Configuration_3\FilteringFunctionInclude&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../Middlewares\GREQ\Inc&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../Middlewares\Common\Inc&quot;"/>
+									<listOptionValue builtIn="false" value="../FilteringFunctionInclude"/>
+									<listOptionValue builtIn="false" value="&quot;../Middlewares\PDM&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../Middlewares\SVC\Inc&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1172458481" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__weak=__attribute__((weak))"/>
@@ -80,9 +84,15 @@
 								<option id="fr.ac6.managedbuild.tool.gnu.cross.c.linker.script.349478165" name="Linker Script (-T)" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.linker.script" value="../STM32F446RCTx_FLASH.ld" valueType="string"/>
 								<option id="gnu.c.link.option.libs.1759260418" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value=":libPDMFilter_CM4_GCC_wc32.a"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value=":libPDMFilter_CM4F_GCC.a"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value=":GrEq_CM4_GCC.a"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value=":SVC_CM4_GCC.a"/>
 								</option>
 								<option id="gnu.c.link.option.paths.287102985" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="../Middlewares/ST/STM32_Audio/Addons/PDM/Lib"/>
+									<listOptionValue builtIn="false" value="&quot;../Middlewares\GREQ\Lib&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../Middlewares\PDM&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../Middlewares\SVC\Lib&quot;"/>
 								</option>
 								<option id="gnu.c.link.option.ldflags.1480429257" name="Linker flags" superClass="gnu.c.link.option.ldflags" value="-specs=nosys.specs -specs=nano.specs" valueType="string"/>
 								<option id="gnu.c.link.option.other.142987151" name="Other options (-Xlinker [option])" superClass="gnu.c.link.option.other" useByScannerDiscovery="false"/>
