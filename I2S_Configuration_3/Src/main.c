@@ -1,11 +1,33 @@
+/* USER CODE BEGIN Header */
+/**
+  ******************************************************************************
+  * @file           : main.c
+  * @brief          : Main program body
+  ******************************************************************************
+  * @attention
+  *
+  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
+  * All rights reserved.</center></h2>
+  *
+  * This software component is licensed by ST under Ultimate Liberty license
+  * SLA0044, the "License"; You may not use this file except in compliance with
+  * the License. You may obtain a copy of the License at:
+  *                             www.st.com/SLA0044
+  *
+  ******************************************************************************
+  */
+/* USER CODE END Header */
+
+/* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "crc.h"
 #include "dac.h"
 #include "dma.h"
 #include "i2c.h"
 #include "i2s.h"
-#include "tim.h"
 #include "pdm2pcm.h"
+#include "tim.h"
+#include "usart.h"
 #include "gpio.h"
 #include "MY_CS43L22.h"
 //#include "arm_math.h"
@@ -33,8 +55,10 @@ int16_t Out_Buffer[size_pcm_buffer];
 
 uint16_t * PDMPtr;
 
+uint8_t Uart_array[2];
 
 void SystemClock_Config(void);
+
 char AudioProcessFlag=0;
 void AudioProcess(void)
 {
@@ -99,7 +123,6 @@ void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
 	AudioProcess();
 }
 
-
 int main(void)
 {
   HAL_Init();
@@ -112,56 +135,81 @@ int main(void)
   MX_DAC_Init();
   MX_I2S3_Init();
   MX_I2C1_Init();
-  //MX_TIM6_Init();
-  //HAL_TIM_Base_Start(&htim6);
+  MX_TIM6_Init();
+  MX_UART4_Init();
+
+//MX_TIM6_Init();
+//HAL_TIM_Base_Start(&htim6);
 /*
 // init the CS43 in I2S mode
-  CS43_Init(hi2c1, MODE_I2S);
-  CS43_SetVolume(50);
-  CS43_Enable_RightLeft(CS43_RIGHT_LEFT);
-  CS43_Start();
+	CS43_Init(hi2c1, MODE_I2S);
+    CS43_SetVolume(50);
+    CS43_Enable_RightLeft(CS43_RIGHT_LEFT);
+    CS43_Start();
 */
-  HAL_DAC_MspInit(&hdac);
-  	//__HAL_I2S_DISABLE(&hi2s2);
-  	HAL_I2S_MspInit(&hi2s2);
-  	__HAL_RCC_CRC_CLK_ENABLE();
-  	CRC->CR = CRC_CR_RESET;
-  	PDM_Filter_Handler_t PDM1_filter_handler;
-  	PDM_Filter_Config_t PDM1_filter_config;
-  	PDM1_filter_handler.bit_order = PDM_FILTER_BIT_ORDER_LSB;
-  	PDM1_filter_handler.endianness = PDM_FILTER_ENDIANNESS_LE;
-  	PDM1_filter_handler.high_pass_tap = 2122358088;//2122358088 ,2104533974
-  	PDM1_filter_handler.out_ptr_channels = 1;
-  	PDM1_filter_handler.in_ptr_channels = 1;
-  	PDM_Filter_Init((PDM_Filter_Handler_t *)(&PDM1_filter_handler));
-  	PDM1_filter_config.output_samples_number = size_pcm_buffer;
-  	PDM1_filter_config.mic_gain = 24 ;
-  	PDM1_filter_config.decimation_factor = PDM_FILTER_DEC_FACTOR_64;
-  	PDM_Filter_setConfig((PDM_Filter_Handler_t *)&PDM1_filter_handler,&PDM1_filter_config);
-  	//Equalizer_Init(&PCM_Buffer[0],&Out_Buffer[0]);
-  	//SVC_init();
-  	parametricEqualizer_Init(&PCM_Buffer[0],&Out_Buffer[0]);
-  	//BandpassFilter_Init(&PCM_Buffer[0],&Out_Buffer[0]);
-  	HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
-  	HAL_I2S_Receive_DMA((I2S_HandleTypeDef *)&hi2s2,I2S_InternalBuffer,size_i2s_buffer);
-  	//HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_1,(uint32_t *)PCM_Buffer,size_pcm_buffer,DAC_ALIGN_12B_R);
+HAL_DAC_MspInit(&hdac);
+//__HAL_I2S_DISABLE(&hi2s2);
+HAL_I2S_MspInit(&hi2s2);
+__HAL_RCC_CRC_CLK_ENABLE();
+CRC->CR = CRC_CR_RESET;
+PDM_Filter_Handler_t PDM1_filter_handler;
+PDM_Filter_Config_t PDM1_filter_config;
+PDM1_filter_handler.bit_order = PDM_FILTER_BIT_ORDER_LSB;
+PDM1_filter_handler.endianness = PDM_FILTER_ENDIANNESS_LE;
+PDM1_filter_handler.high_pass_tap = 2122358088;//2122358088 ,2104533974
+PDM1_filter_handler.out_ptr_channels = 1;
+PDM1_filter_handler.in_ptr_channels = 1;
+PDM_Filter_Init((PDM_Filter_Handler_t *)(&PDM1_filter_handler));
+PDM1_filter_config.output_samples_number = size_pcm_buffer;
+PDM1_filter_config.mic_gain = 24 ;
+PDM1_filter_config.decimation_factor = PDM_FILTER_DEC_FACTOR_64;
+PDM_Filter_setConfig((PDM_Filter_Handler_t *)&PDM1_filter_handler,&PDM1_filter_config);
+//Equalizer_Init(&PCM_Buffer[0],&Out_Buffer[0]);
+//SVC_init();
+parametricEqualizer_Init(&PCM_Buffer[0],&Out_Buffer[0]);
+//BandpassFilter_Init(&PCM_Buffer[0],&Out_Buffer[0]);
+HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
+HAL_I2S_Receive_DMA((I2S_HandleTypeDef *)&hi2s2,I2S_InternalBuffer,size_i2s_buffer);
+//HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_1,(uint32_t *)PCM_Buffer,size_pcm_buffer,DAC_ALIGN_12B_R);
 
-  	//cascade();
+//cascade();
 
   while (1)
   {
 	  /*
-	  if ( AudioProcessFlag ==1){
-		  __disable_irq();
-	  			AudioProcess();
-	  			AudioProcessFlag =0;
-	  			__enable_irq();
-	  		}*/
+	  	 if ( AudioProcessFlag ==1)
+	  	 {
+	  		__disable_irq();
+	  	    AudioProcess();
+	  	  	AudioProcessFlag =0;
+	  		__enable_irq();
+	  	  }
+	  */
 
+	  // enable uart to recieve data from Bluetooth module
+	  HAL_UART_Receive( (UART_HandleTypeDef*)&huart4, Uart_array, 2, 10000);
+	  switch(Uart_array[0])
+	  {
+	  	  case 'A':
 
+	  		  break;
+	  	  case 'B':
+
+	  		  break;
+	  	  case 'C':
+
+	  		  break;
+	  	  case 'D':
+
+	  		  break;
+	  }
   }
-
 }
+
+/**
+  * @brief System Clock Configuration
+  * @retval None
+  */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
