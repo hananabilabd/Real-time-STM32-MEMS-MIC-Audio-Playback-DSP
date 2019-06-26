@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * File Name          : I2S.h
+  * File Name          : TIM.h
   * Description        : This file provides code for the configuration
-  *                      of the I2S instances.
+  *                      of the TIM instances.
   ******************************************************************************
   * @attention
   *
@@ -17,8 +17,8 @@
   ******************************************************************************
   */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __i2s_H
-#define __i2s_H
+#ifndef __tim_H
+#define __tim_H
 #ifdef __cplusplus
  extern "C" {
 #endif
@@ -30,15 +30,13 @@
 
 /* USER CODE END Includes */
 
-extern I2S_HandleTypeDef hi2s2;
-extern I2S_HandleTypeDef hi2s3;
+extern TIM_HandleTypeDef htim6;
 
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
-void MX_I2S2_Init(void);
-void MX_I2S3_Init(void);
+void MX_TIM6_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
@@ -47,7 +45,7 @@ void MX_I2S3_Init(void);
 #ifdef __cplusplus
 }
 #endif
-#endif /*__ i2s_H */
+#endif /*__ tim_H */
 
 /**
   * @}

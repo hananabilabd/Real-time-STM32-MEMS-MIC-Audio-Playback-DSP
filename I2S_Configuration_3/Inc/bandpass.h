@@ -8,11 +8,7 @@
 #ifndef BANDPASS_H_
 #define BANDPASS_H_
 
-void BandpassFilter_Init(void);
-void BandpassFilter(int32_t * inputBuffer,  int32_t* outBuffer);
-void arm_power_q31(
-  const int32_t * pSrc,
-        uint32_t blockSize,
-        int64_t * pResult);
+void BandpassFilter(void);
+void BandpassFilter_Init(int16_t * inputBuffer,int16_t * outBuffer);
 
 #endif /* BANDPASS_H_ */

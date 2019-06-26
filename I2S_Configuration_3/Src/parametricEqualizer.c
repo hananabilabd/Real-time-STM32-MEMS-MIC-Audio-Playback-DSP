@@ -29,6 +29,7 @@ typedef struct {
 } DW;
 
 DW rtDW;
+int gainDB[3]={10,0,0};
 static void BiquadFilter_Init(void)
 {
   int32_T i;
@@ -186,7 +187,7 @@ static void Band3(void)
     /* DiscreteFilter: '<S6>/Discrete Filter' incorporates:
      *  Constant: '<S1>/Coeffs for Band3'
      */
-    denAccum = CoeffsMatrix3[k] - -0.75F * rtDW.DiscreteFilter_states[k];
+    denAccum = CoeffsMatrix3[gainDB[2]][k] - -0.75F * rtDW.DiscreteFilter_states[k];
     rtDW.DiscreteFilter[k] = 0.25F * denAccum;
 
     /* Update for DiscreteFilter: '<S6>/Discrete Filter' */
@@ -201,7 +202,7 @@ static void Band1(void)
     /* DiscreteFilter: '<S4>/Discrete Filter' incorporates:
      *  Constant: '<S1>/Coeffs for Band1'
      */
-    denAccum = CoeffsMatrix1[k] - -0.75F * rtDW.DiscreteFilter_states_l[k];
+    denAccum = CoeffsMatrix1[gainDB[0]][k] - -0.75F * rtDW.DiscreteFilter_states_l[k];
     rtDW.DiscreteFilter_n[k] = 0.25F * denAccum;
 
     /* Update for DiscreteFilter: '<S4>/Discrete Filter' */
@@ -218,7 +219,7 @@ static void Band2(void)
     /* DiscreteFilter: '<S5>/Discrete Filter' incorporates:
      *  Constant: '<S1>/Coeffs for Band2'
      */
-    denAccum = CoeffsMatrix2[k] - -0.75F * rtDW.DiscreteFilter_states_p[k];
+    denAccum = CoeffsMatrix2[gainDB[1]][k] - -0.75F * rtDW.DiscreteFilter_states_p[k];
     rtDW.DiscreteFilter_g[k] = 0.25F * denAccum;
 
     /* Update for DiscreteFilter: '<S5>/Discrete Filter' */
