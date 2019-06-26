@@ -29,7 +29,7 @@ typedef struct {
 } DW;
 
 DW rtDW;
-int gainDB[3]={10,0,0};
+extern int gainDB[3];
 static void BiquadFilter_Init(void)
 {
   int32_T i;

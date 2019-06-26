@@ -1,24 +1,3 @@
-/* USER CODE BEGIN Header */
-/**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under Ultimate Liberty license
-  * SLA0044, the "License"; You may not use this file except in compliance with
-  * the License. You may obtain a copy of the License at:
-  *                             www.st.com/SLA0044
-  *
-  ******************************************************************************
-  */
-/* USER CODE END Header */
-
-/* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "crc.h"
 #include "dac.h"
@@ -56,7 +35,7 @@ int16_t Out_Buffer[size_pcm_buffer];
 uint16_t * PDMPtr;
 
 uint8_t Uart_array[2];
-
+int gainDB[3]={0};
 void SystemClock_Config(void);
 
 char AudioProcessFlag=0;
@@ -135,7 +114,7 @@ int main(void)
   MX_DAC_Init();
   MX_I2S3_Init();
   MX_I2C1_Init();
-  MX_TIM6_Init();
+  //MX_TIM6_Init();
   MX_UART4_Init();
 
 //MX_TIM6_Init();
@@ -187,11 +166,11 @@ HAL_I2S_Receive_DMA((I2S_HandleTypeDef *)&hi2s2,I2S_InternalBuffer,size_i2s_buff
 	  */
 
 	  // enable uart to recieve data from Bluetooth module
-	  HAL_UART_Receive( (UART_HandleTypeDef*)&huart4, Uart_array, 2, 10000);
+	  HAL_UART_Receive( (UART_HandleTypeDef*)&huart4, Uart_array, 2, 20);
 	  switch(Uart_array[0])
 	  {
 	  	  case 'A':
-
+	  		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_1);
 	  		  break;
 	  	  case 'B':
 
@@ -203,13 +182,9 @@ HAL_I2S_Receive_DMA((I2S_HandleTypeDef *)&hi2s2,I2S_InternalBuffer,size_i2s_buff
 
 	  		  break;
 	  }
+	  HAL_Delay(200);
   }
 }
-
-/**
-  * @brief System Clock Configuration
-  * @retval None
-  */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
