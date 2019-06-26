@@ -22,11 +22,11 @@ void pdmFilter(uint16_t *mic_buff,int16_t *MW_pcm_data,uint32_t num_samples);
 #define MW_MIC_FRAME_LENGTH   882
 #define MW_PDM_SAMPLES_UINT16_INPUT_BUFFER_SIZE  ((MW_MIC_FRAME_LENGTH) * (64) * (1) / 8 / 2)
 #define ENABLE  1
-#define Disable 0
+#define DISABLE 0
 #define size_i2s_buffer 32//=32
 #define size_pdm_buffer  100 //64
 #define size_pcm_buffer  10  //10
-#define PARAMETRIC_EQUALIZER  ENABLE
+#define PARAMETRIC_EQUALIZER  DISABLE
 static uint16_t I2S_InternalBuffer[size_i2s_buffer];
 uint16_t PDM_Buffer[size_pdm_buffer];
 int16_t PCM_Buffer[size_pcm_buffer];
@@ -45,17 +45,22 @@ void AudioProcess(void)
 #if  PARAMETRIC_EQUALIZER == ENABLE
 	pdmFilter(&PDM_Buffer[0],&PCM_Buffer[0],10);
 	step();
+	for(i=0; i<size_pcm_buffer; i++)
+		{
+			HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,Out_Buffer[i]);
+		}
 #else
 	PDM_Filter( &((uint8_t*)(PDM_Buffer))[0], &PCM_Buffer[0], (PDM_Filter_Handler_t *)&PDM1_filter_handler);
+	for(i=0; i<size_pcm_buffer; i++)
+		{
+			HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,PCM_Buffer[i]);
+		}
 #endif
 	//BandpassFilter();
 	//equaizerProcess(&PCM_Buffer[0],&Out_Buffer[0]);
 	//HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_1);
 
-	for(i=0; i<size_pcm_buffer; i++)
-	{
-		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,Out_Buffer[i]);
-	}
+
 
 	// send the PCM_buffer by I2S3 to the audio codec CS43L22
 	//HAL_I2S_Transmit_DMA((I2S_HandleTypeDef *)&hi2s3, PCM_Buffer, size_pcm_buffer);
@@ -68,7 +73,12 @@ void HAL_I2S_RxHalfCpltCallback(I2S_HandleTypeDef *hi2s)
 
 
 #if ( PARAMETRIC_EQUALIZER == DISABLE)
-		PDMPtr = &I2S_InternalBuffer[0];
+	uint32_t index = 0;
+	uint16_t * DataTempI2S = I2S_InternalBuffer;
+	for(index = 0; index < size_i2s_buffer /2; index++)
+	{
+		PDM_Buffer[index] = HTONS(DataTempI2S[index]);
+	}
 #else
 		uint32_t index = 0;
 	uint16_t * DataTempI2S = I2S_InternalBuffer;
@@ -87,13 +97,18 @@ void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
 
 #if ( PARAMETRIC_EQUALIZER == DISABLE)
-	    PDMPtr = &I2S_InternalBuffer[size_i2s_buffer /2];
+	uint32_t index = 0;
+	uint16_t * DataTempI2S = &I2S_InternalBuffer[size_i2s_buffer /2] ;
+	for(index = 0; index <  size_i2s_buffer /2; index++)
+	{
+		PDM_Buffer[index] = HTONS(DataTempI2S[index]);
+
+	}
 #else
 	    uint32_t index = 0;
 	    uint16_t * DataTempI2S = &I2S_InternalBuffer[size_i2s_buffer /2] ;
 	    for(index = 0; index <  size_i2s_buffer /2; index++)
 	    	{
-		//PDM_Buffer[index] = HTONS(DataTempI2S[index]);
 		PDM_Buffer[index] = DataTempI2S[index];
 	    	}
 #endif
