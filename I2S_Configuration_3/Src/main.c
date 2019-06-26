@@ -151,7 +151,6 @@ HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
 HAL_I2S_Receive_DMA((I2S_HandleTypeDef *)&hi2s2,I2S_InternalBuffer,size_i2s_buffer);
 //HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_1,(uint32_t *)PCM_Buffer,size_pcm_buffer,DAC_ALIGN_12B_R);
 
-//cascade();
 
   while (1)
   {
@@ -165,23 +164,21 @@ HAL_I2S_Receive_DMA((I2S_HandleTypeDef *)&hi2s2,I2S_InternalBuffer,size_i2s_buff
 	  	  }
 	  */
 
-	  // enable uart to recieve data from Bluetooth module
-	  HAL_UART_Receive( (UART_HandleTypeDef*)&huart4, Uart_array, 2, 20);
+
+	  HAL_UART_Receive( (UART_HandleTypeDef*)&huart4, Uart_array, 2, 200);
 	  switch(Uart_array[0])
 	  {
 	  	  case 'A':
-	  		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_1);
+	  		gainDB[0] =Uart_array[1];
 	  		  break;
 	  	  case 'B':
-
+	  		gainDB[1] =Uart_array[1];
 	  		  break;
 	  	  case 'C':
-
-	  		  break;
-	  	  case 'D':
-
+	  		gainDB[2] =Uart_array[1];
 	  		  break;
 	  }
+
 	  HAL_Delay(200);
   }
 }
