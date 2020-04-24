@@ -1,2 +1,2 @@
-# Digital-Hearing-Aid-STM32
+# STM32F446RC Audio acquisition using MEMS Microphone & DAC
 STM32F4, MEMS microphone, DAC,
