@@ -39,6 +39,51 @@ int gainDB[3]={0};
 void SystemClock_Config(void);
 
 char AudioProcessFlag=0;
+int RxHalfComplete_Flag=0;
+int RxComplete_Flag=0;
+void RxHalfComplete_Function(void){
+	#if ( PARAMETRIC_EQUALIZER == DISABLE)
+		uint32_t index = 0;
+		uint16_t * DataTempI2S = I2S_InternalBuffer;
+		for(index = 0; index < size_i2s_buffer /2; index++)
+		{
+			PDM_Buffer[index] = HTONS(DataTempI2S[index]);
+		}
+	#else
+			uint32_t index = 0;
+		uint16_t * DataTempI2S = I2S_InternalBuffer;
+		for(index = 0; index < size_i2s_buffer /2; index++)
+		{
+			//PDM_Buffer[index] = HTONS(DataTempI2S[index]);
+			PDM_Buffer[index] = DataTempI2S[index];
+		}
+	#endif
+
+	AudioProcessFlag = 1;
+	AudioProcess();
+}
+void RxComplete_Function(void){
+
+	#if ( PARAMETRIC_EQUALIZER == DISABLE)
+		uint32_t index = 0;
+		uint16_t * DataTempI2S = &I2S_InternalBuffer[size_i2s_buffer /2] ;
+		for(index = 0; index <  size_i2s_buffer /2; index++)
+		{
+			PDM_Buffer[index] = HTONS(DataTempI2S[index]);
+
+		}
+	#else
+			uint32_t index = 0;
+			uint16_t * DataTempI2S = &I2S_InternalBuffer[size_i2s_buffer /2] ;
+			for(index = 0; index <  size_i2s_buffer /2; index++)
+				{
+			PDM_Buffer[index] = DataTempI2S[index];
+				}
+	#endif
+
+		AudioProcessFlag = 1;
+		AudioProcess();
+}
 void AudioProcess(void)
 {
 	uint8_t i;
@@ -70,51 +115,11 @@ void AudioProcess(void)
 
 void HAL_I2S_RxHalfCpltCallback(I2S_HandleTypeDef *hi2s)
 {
-
-
-#if ( PARAMETRIC_EQUALIZER == DISABLE)
-	uint32_t index = 0;
-	uint16_t * DataTempI2S = I2S_InternalBuffer;
-	for(index = 0; index < size_i2s_buffer /2; index++)
-	{
-		PDM_Buffer[index] = HTONS(DataTempI2S[index]);
-	}
-#else
-		uint32_t index = 0;
-	uint16_t * DataTempI2S = I2S_InternalBuffer;
-	for(index = 0; index < size_i2s_buffer /2; index++)
-	{
-		//PDM_Buffer[index] = HTONS(DataTempI2S[index]);
-		PDM_Buffer[index] = DataTempI2S[index];
-	}
-#endif
-
-
-	AudioProcessFlag = 1;
-	AudioProcess();
+	RxHalfComplete_Flag =1;
 }
 void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
-
-#if ( PARAMETRIC_EQUALIZER == DISABLE)
-	uint32_t index = 0;
-	uint16_t * DataTempI2S = &I2S_InternalBuffer[size_i2s_buffer /2] ;
-	for(index = 0; index <  size_i2s_buffer /2; index++)
-	{
-		PDM_Buffer[index] = HTONS(DataTempI2S[index]);
-
-	}
-#else
-	    uint32_t index = 0;
-	    uint16_t * DataTempI2S = &I2S_InternalBuffer[size_i2s_buffer /2] ;
-	    for(index = 0; index <  size_i2s_buffer /2; index++)
-	    	{
-		PDM_Buffer[index] = DataTempI2S[index];
-	    	}
-#endif
-
-	AudioProcessFlag = 1;
-	AudioProcess();
+	RxComplete_Flag=1;
 }
 
 int main(void)
@@ -169,6 +174,14 @@ HAL_I2S_Receive_DMA((I2S_HandleTypeDef *)&hi2s2,I2S_InternalBuffer,size_i2s_buff
 
   while (1)
   {
+	  if ( RxHalfComplete_Flag ==1){
+		  RxHalfComplete_Function();
+		  RxHalfComplete_Flag =0;
+	  }
+	  else if ( RxComplete_Flag ==1){
+	 		  RxComplete_Function();
+	 		  RxComplete_Flag =0;
+	 	  }
 	  /*
 	  	 if ( AudioProcessFlag ==1)
 	  	 {
@@ -180,7 +193,7 @@ HAL_I2S_Receive_DMA((I2S_HandleTypeDef *)&hi2s2,I2S_InternalBuffer,size_i2s_buff
 	  */
 
 
-	  HAL_UART_Receive( (UART_HandleTypeDef*)&huart4, Uart_array, 2, 200);
+	  /*HAL_UART_Receive( (UART_HandleTypeDef*)&huart4, Uart_array, 2, 200);
 	  switch(Uart_array[0])
 	  {
 	  	  case 'A':
@@ -193,8 +206,7 @@ HAL_I2S_Receive_DMA((I2S_HandleTypeDef *)&hi2s2,I2S_InternalBuffer,size_i2s_buff
 	  		gainDB[2] =Uart_array[1];
 	  		  break;
 	  }
-
-	  HAL_Delay(200);
+	  HAL_Delay(200);*/
   }
 }
 void SystemClock_Config(void)
